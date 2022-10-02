@@ -1,0 +1,1 @@
+We need to in some way use the token that is available and use it in a request header "Authorization: Bearer <token>"
