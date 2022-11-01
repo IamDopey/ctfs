@@ -1,0 +1,116 @@
+# Nmap 7.92 scan initiated Tue Mar 15 16:48:48 2022 as: nmap -p 22,80 -Pn -A -sV -o scan.txt 10.10.11.148
+Nmap scan report for 10.10.11.148
+Host is up (0.055s latency).
+
+PORT   STATE SERVICE VERSION
+22/tcp open  ssh     (protocol 2.0)
+| fingerprint-strings: 
+|   NULL: 
+|_    SSH-2.0-RouterSpace Packet Filtering V1
+| ssh-hostkey: 
+|   3072 f4:e4:c8:0a:a6:af:66:93:af:69:5a:a9:bc:75:f9:0c (RSA)
+|   256 7f:05:cd:8c:42:7b:a9:4a:b2:e6:35:2c:c4:59:78:02 (ECDSA)
+|_  256 2f:d7:a8:8b:be:2d:10:b0:c9:b4:29:52:a8:94:24:78 (ED25519)
+80/tcp open  http
+| fingerprint-strings: 
+|   FourOhFourRequest: 
+|     HTTP/1.1 200 OK
+|     X-Powered-By: RouterSpace
+|     X-Cdn: RouterSpace-84501
+|     Content-Type: text/html; charset=utf-8
+|     Content-Length: 74
+|     ETag: W/"4a-0soc7nSZ7KSHrld/C1F8vKEqKSA"
+|     Date: Tue, 15 Mar 2022 17:07:05 GMT
+|     Connection: close
+|     Suspicious activity detected !!! {RequestID: 2O gTYg 6z5h 7W k }
+|   GetRequest: 
+|     HTTP/1.1 200 OK
+|     X-Powered-By: RouterSpace
+|     X-Cdn: RouterSpace-41933
+|     Accept-Ranges: bytes
+|     Cache-Control: public, max-age=0
+|     Last-Modified: Mon, 22 Nov 2021 11:33:57 GMT
+|     ETag: W/"652c-17d476c9285"
+|     Content-Type: text/html; charset=UTF-8
+|     Content-Length: 25900
+|     Date: Tue, 15 Mar 2022 17:07:05 GMT
+|     Connection: close
+|     <!doctype html>
+|     <html class="no-js" lang="zxx">
+|     <head>
+|     <meta charset="utf-8">
+|     <meta http-equiv="x-ua-compatible" content="ie=edge">
+|     <title>RouterSpace</title>
+|     <meta name="description" content="">
+|     <meta name="viewport" content="width=device-width, initial-scale=1">
+|     <link rel="stylesheet" href="css/bootstrap.min.css">
+|     <link rel="stylesheet" href="css/owl.carousel.min.css">
+|     <link rel="stylesheet" href="css/magnific-popup.css">
+|     <link rel="stylesheet" href="css/font-awesome.min.css">
+|     <link rel="stylesheet" href="css/themify-icons.css">
+|   HTTPOptions: 
+|     HTTP/1.1 200 OK
+|     X-Powered-By: RouterSpace
+|     X-Cdn: RouterSpace-28735
+|     Allow: GET,HEAD,POST
+|     Content-Type: text/html; charset=utf-8
+|     Content-Length: 13
+|     ETag: W/"d-bMedpZYGrVt1nR4x+qdNZ2GqyRo"
+|     Date: Tue, 15 Mar 2022 17:07:05 GMT
+|     Connection: close
+|     GET,HEAD,POST
+|   RTSPRequest, X11Probe: 
+|     HTTP/1.1 400 Bad Request
+|_    Connection: close
+|_http-title: RouterSpace
+|_http-trane-info: Problem with XML parsing of /evox/about
+2 services unrecognized despite returning data. If you know the service/version, please submit the following fingerprints at https://nmap.org/cgi-bin/submit.cgi?new-service :
+==============NEXT SERVICE FINGERPRINT (SUBMIT INDIVIDUALLY)==============
+SF-Port22-TCP:V=7.92%I=7%D=3/15%Time=6230C376%P=x86_64-pc-linux-gnu%r(NULL
+SF:,29,"SSH-2\.0-RouterSpace\x20Packet\x20Filtering\x20V1\r\n");
+==============NEXT SERVICE FINGERPRINT (SUBMIT INDIVIDUALLY)==============
+SF-Port80-TCP:V=7.92%I=7%D=3/15%Time=6230C376%P=x86_64-pc-linux-gnu%r(GetR
+SF:equest,31BA,"HTTP/1\.1\x20200\x20OK\r\nX-Powered-By:\x20RouterSpace\r\n
+SF:X-Cdn:\x20RouterSpace-41933\r\nAccept-Ranges:\x20bytes\r\nCache-Control
+SF::\x20public,\x20max-age=0\r\nLast-Modified:\x20Mon,\x2022\x20Nov\x20202
+SF:1\x2011:33:57\x20GMT\r\nETag:\x20W/\"652c-17d476c9285\"\r\nContent-Type
+SF::\x20text/html;\x20charset=UTF-8\r\nContent-Length:\x2025900\r\nDate:\x
+SF:20Tue,\x2015\x20Mar\x202022\x2017:07:05\x20GMT\r\nConnection:\x20close\
+SF:r\n\r\n<!doctype\x20html>\n<html\x20class=\"no-js\"\x20lang=\"zxx\">\n<
+SF:head>\n\x20\x20\x20\x20<meta\x20charset=\"utf-8\">\n\x20\x20\x20\x20<me
+SF:ta\x20http-equiv=\"x-ua-compatible\"\x20content=\"ie=edge\">\n\x20\x20\
+SF:x20\x20<title>RouterSpace</title>\n\x20\x20\x20\x20<meta\x20name=\"desc
+SF:ription\"\x20content=\"\">\n\x20\x20\x20\x20<meta\x20name=\"viewport\"\
+SF:x20content=\"width=device-width,\x20initial-scale=1\">\n\n\x20\x20\x20\
+SF:x20<link\x20rel=\"stylesheet\"\x20href=\"css/bootstrap\.min\.css\">\n\x
+SF:20\x20\x20\x20<link\x20rel=\"stylesheet\"\x20href=\"css/owl\.carousel\.
+SF:min\.css\">\n\x20\x20\x20\x20<link\x20rel=\"stylesheet\"\x20href=\"css/
+SF:magnific-popup\.css\">\n\x20\x20\x20\x20<link\x20rel=\"stylesheet\"\x20
+SF:href=\"css/font-awesome\.min\.css\">\n\x20\x20\x20\x20<link\x20rel=\"st
+SF:ylesheet\"\x20href=\"css/themify-icons\.css\">\n\x20")%r(HTTPOptions,10
+SF:8,"HTTP/1\.1\x20200\x20OK\r\nX-Powered-By:\x20RouterSpace\r\nX-Cdn:\x20
+SF:RouterSpace-28735\r\nAllow:\x20GET,HEAD,POST\r\nContent-Type:\x20text/h
+SF:tml;\x20charset=utf-8\r\nContent-Length:\x2013\r\nETag:\x20W/\"d-bMedpZ
+SF:YGrVt1nR4x\+qdNZ2GqyRo\"\r\nDate:\x20Tue,\x2015\x20Mar\x202022\x2017:07
+SF::05\x20GMT\r\nConnection:\x20close\r\n\r\nGET,HEAD,POST")%r(RTSPRequest
+SF:,2F,"HTTP/1\.1\x20400\x20Bad\x20Request\r\nConnection:\x20close\r\n\r\n
+SF:")%r(X11Probe,2F,"HTTP/1\.1\x20400\x20Bad\x20Request\r\nConnection:\x20
+SF:close\r\n\r\n")%r(FourOhFourRequest,130,"HTTP/1\.1\x20200\x20OK\r\nX-Po
+SF:wered-By:\x20RouterSpace\r\nX-Cdn:\x20RouterSpace-84501\r\nContent-Type
+SF::\x20text/html;\x20charset=utf-8\r\nContent-Length:\x2074\r\nETag:\x20W
+SF:/\"4a-0soc7nSZ7KSHrld/C1F8vKEqKSA\"\r\nDate:\x20Tue,\x2015\x20Mar\x2020
+SF:22\x2017:07:05\x20GMT\r\nConnection:\x20close\r\n\r\nSuspicious\x20acti
+SF:vity\x20detected\x20!!!\x20{RequestID:\x202O\x20gTYg\x20\x206z5h\x207W\
+SF:x20\x20\x20\x20k\x20}\n\n\n\n\n\n");
+Warning: OSScan results may be unreliable because we could not find at least 1 open and 1 closed port
+Aggressive OS guesses: Linux 4.15 - 5.6 (92%), Linux 5.0 (92%), Linux 5.0 - 5.4 (91%), Linux 5.3 - 5.4 (91%), Linux 2.6.32 (91%), Linux 5.0 - 5.3 (90%), Crestron XPanel control system (90%), Linux 5.4 (89%), ASUS RT-N56U WAP (Linux 3.4) (87%), Linux 3.1 (87%)
+No exact OS matches for host (test conditions non-ideal).
+Network Distance: 2 hops
+
+TRACEROUTE (using port 80/tcp)
+HOP RTT      ADDRESS
+1   69.46 ms 10.10.14.1
+2   66.13 ms 10.10.11.148
+
+OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+# Nmap done at Tue Mar 15 16:49:09 2022 -- 1 IP address (1 host up) scanned in 21.26 seconds

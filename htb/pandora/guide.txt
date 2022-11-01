@@ -1,0 +1,54 @@
+Nmap:
+
+PORT   STATE SERVICE VERSION
+22/tcp open  ssh     OpenSSH 8.2p1 Ubuntu 4ubuntu0.3 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   3072 24:c2:95:a5:c3:0b:3f:f3:17:3c:68:d7:af:2b:53:38 (RSA)
+|   256 b1:41:77:99:46:9a:6c:5d:d2:98:2f:c0:32:9a:ce:03 (ECDSA)
+|_  256 e7:36:43:3b:a9:47:8a:19:01:58:b2:bc:89:f6:51:08 (ED25519)
+80/tcp open  http    Apache httpd 2.4.41 ((Ubuntu))
+|_http-title: Play | Landing
+|_http-server-header: Apache/2.4.41 (Ubuntu)
+
+
+nikto:
+
++ Target IP:          10.10.11.136
++ Target Hostname:    10.10.11.136
++ Target Port:        80
++ Start Time:         2022-03-15 17:28:07 (GMT0)
+---------------------------------------------------------------------------
++ Server: Apache/2.4.41 (Ubuntu)
++ The anti-clickjacking X-Frame-Options header is not present.
++ The X-XSS-Protection header is not defined. This header can hint to the user agent to protect against some forms of XSS
++ The X-Content-Type-Options header is not set. This could allow the user agent to render the content of the site in a different fashion to the MIME type
++ No CGI Directories found (use '-C all' to force check all possible dirs)
++ Server may leak inodes via ETags, header found with file /, inode: 8318, size: 5d23e548bc656, mtime: gzip
++ Allowed HTTP Methods: POST, OPTIONS, HEAD, GET
+
+gobuster:
+
+/assets 
+
+
+Main Page:
+
+Credentials:
+
+support@panda.htb
+contact@panda.htb
+
+We have a form lets send information with burp and try to use sqlmap to analyse for sql injections in the fields.
+
+sqlmap -r request --dbs
+
+[CRITICAL] all tested parameters do not appear to be injectable.
+
+After sometime i got stuck and started to read a writeup which i found that somebody used a -sU flag in nmap to scan for udp ports. 
+
+Discovered open port 161/udp on 10.10.11.136
+
+SNMP runs in this port so we can use snmpenum to extract mroe information
+
+snmpenum
+snmpwalk

