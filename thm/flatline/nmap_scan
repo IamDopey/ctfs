@@ -1,0 +1,2 @@
+# Nmap 7.92 scan initiated Mon Sep 19 08:35:42 2022 as: nmap -A -p- -oN nmap_scan 10.10.172.70
+# Nmap done at Mon Sep 19 08:35:46 2022 -- 1 IP address (0 hosts up) scanned in 3.56 seconds

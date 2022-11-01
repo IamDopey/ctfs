@@ -1,0 +1,12 @@
+# Nmap 7.92 scan initiated Sun Sep 25 12:07:36 2022 as: nmap -Pn -p- -oN target_ports 10.10.96.172
+Nmap scan report for 10.10.96.172
+Host is up (0.068s latency).
+Not shown: 65530 closed tcp ports (reset)
+PORT      STATE SERVICE
+22/tcp    open  ssh
+80/tcp    open  http
+4040/tcp  open  yo-main
+9009/tcp  open  pichat
+54321/tcp open  unknown
+
+# Nmap done at Sun Sep 25 12:09:07 2022 -- 1 IP address (1 host up) scanned in 90.98 seconds

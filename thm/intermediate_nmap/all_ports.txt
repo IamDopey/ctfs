@@ -1,0 +1,64 @@
+# Nmap 7.92 scan initiated Sat Oct  8 07:25:39 2022 as: nmap -Pn -p 22,2222,31337 -A -sT -oN all_ports.txt 10.10.176.62
+Nmap scan report for 10.10.176.62
+Host is up (0.052s latency).
+
+PORT      STATE SERVICE VERSION
+22/tcp    open  ssh     OpenSSH 8.2p1 Ubuntu 4ubuntu0.4 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   3072 7d:dc:eb:90:e4:af:33:d9:9f:0b:21:9a:fc:d5:77:f2 (RSA)
+|   256 83:a7:4a:61:ef:93:a3:57:1a:57:38:5c:48:2a:eb:16 (ECDSA)
+|_  256 30:bf:ef:94:08:86:07:00:f7:fc:df:e8:ed:fe:07:af (ED25519)
+2222/tcp  open  ssh     OpenSSH 8.2p1 Ubuntu 4ubuntu0.4 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   3072 84:5c:ee:d3:12:bd:84:52:bb:e0:96:d7:2a:f2:8e:69 (RSA)
+|   256 b3:94:5a:ad:e2:8d:d0:52:50:75:fd:53:18:9b:b3:ec (ECDSA)
+|_  256 6a:a0:5b:7f:c5:3c:c8:02:38:12:ec:4f:f4:67:2e:64 (ED25519)
+31337/tcp open  Elite?
+| fingerprint-strings: 
+|   DNSStatusRequestTCP, DNSVersionBindReqTCP, FourOhFourRequest, GenericLines, GetRequest, HTTPOptions, Help, Kerberos, LANDesk-RC, LDAPBindReq, LDAPSearchReq, LPDString, NULL, RPCCheck, RTSPRequest, SIPOptions, SMBProgNeg, SSLSessionReq, TLSSessionReq, TerminalServer, TerminalServerCookie, X11Probe: 
+|     In case I forget - user:pass
+|_    ubuntu:Dafdas!!/str0ng
+1 service unrecognized despite returning data. If you know the service/version, please submit the following fingerprint at https://nmap.org/cgi-bin/submit.cgi?new-service :
+SF-Port31337-TCP:V=7.92%I=7%D=10/8%Time=63415E33%P=x86_64-pc-linux-gnu%r(N
+SF:ULL,35,"In\x20case\x20I\x20forget\x20-\x20user:pass\nubuntu:Dafdas!!/st
+SF:r0ng\n\n")%r(GetRequest,35,"In\x20case\x20I\x20forget\x20-\x20user:pass
+SF:\nubuntu:Dafdas!!/str0ng\n\n")%r(SIPOptions,35,"In\x20case\x20I\x20forg
+SF:et\x20-\x20user:pass\nubuntu:Dafdas!!/str0ng\n\n")%r(GenericLines,35,"I
+SF:n\x20case\x20I\x20forget\x20-\x20user:pass\nubuntu:Dafdas!!/str0ng\n\n"
+SF:)%r(HTTPOptions,35,"In\x20case\x20I\x20forget\x20-\x20user:pass\nubuntu
+SF::Dafdas!!/str0ng\n\n")%r(RTSPRequest,35,"In\x20case\x20I\x20forget\x20-
+SF:\x20user:pass\nubuntu:Dafdas!!/str0ng\n\n")%r(RPCCheck,35,"In\x20case\x
+SF:20I\x20forget\x20-\x20user:pass\nubuntu:Dafdas!!/str0ng\n\n")%r(DNSVers
+SF:ionBindReqTCP,35,"In\x20case\x20I\x20forget\x20-\x20user:pass\nubuntu:D
+SF:afdas!!/str0ng\n\n")%r(DNSStatusRequestTCP,35,"In\x20case\x20I\x20forge
+SF:t\x20-\x20user:pass\nubuntu:Dafdas!!/str0ng\n\n")%r(Help,35,"In\x20case
+SF:\x20I\x20forget\x20-\x20user:pass\nubuntu:Dafdas!!/str0ng\n\n")%r(SSLSe
+SF:ssionReq,35,"In\x20case\x20I\x20forget\x20-\x20user:pass\nubuntu:Dafdas
+SF:!!/str0ng\n\n")%r(TerminalServerCookie,35,"In\x20case\x20I\x20forget\x2
+SF:0-\x20user:pass\nubuntu:Dafdas!!/str0ng\n\n")%r(TLSSessionReq,35,"In\x2
+SF:0case\x20I\x20forget\x20-\x20user:pass\nubuntu:Dafdas!!/str0ng\n\n")%r(
+SF:Kerberos,35,"In\x20case\x20I\x20forget\x20-\x20user:pass\nubuntu:Dafdas
+SF:!!/str0ng\n\n")%r(SMBProgNeg,35,"In\x20case\x20I\x20forget\x20-\x20user
+SF::pass\nubuntu:Dafdas!!/str0ng\n\n")%r(X11Probe,35,"In\x20case\x20I\x20f
+SF:orget\x20-\x20user:pass\nubuntu:Dafdas!!/str0ng\n\n")%r(FourOhFourReque
+SF:st,35,"In\x20case\x20I\x20forget\x20-\x20user:pass\nubuntu:Dafdas!!/str
+SF:0ng\n\n")%r(LPDString,35,"In\x20case\x20I\x20forget\x20-\x20user:pass\n
+SF:ubuntu:Dafdas!!/str0ng\n\n")%r(LDAPSearchReq,35,"In\x20case\x20I\x20for
+SF:get\x20-\x20user:pass\nubuntu:Dafdas!!/str0ng\n\n")%r(LDAPBindReq,35,"I
+SF:n\x20case\x20I\x20forget\x20-\x20user:pass\nubuntu:Dafdas!!/str0ng\n\n"
+SF:)%r(LANDesk-RC,35,"In\x20case\x20I\x20forget\x20-\x20user:pass\nubuntu:
+SF:Dafdas!!/str0ng\n\n")%r(TerminalServer,35,"In\x20case\x20I\x20forget\x2
+SF:0-\x20user:pass\nubuntu:Dafdas!!/str0ng\n\n");
+Warning: OSScan results may be unreliable because we could not find at least 1 open and 1 closed port
+Aggressive OS guesses: Linux 4.15 - 5.6 (95%), Linux 5.3 - 5.4 (95%), Linux 2.6.32 (95%), Linux 5.0 - 5.3 (95%), Linux 3.1 (95%), Linux 3.2 (95%), AXIS 210A or 211 Network Camera (Linux 2.6.17) (94%), ASUS RT-N56U WAP (Linux 3.4) (93%), Linux 3.16 (93%), Linux 5.0 (93%)
+No exact OS matches for host (test conditions non-ideal).
+Network Distance: 2 hops
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+TRACEROUTE (using proto 1/icmp)
+HOP RTT      ADDRESS
+1   51.83 ms 10.9.0.1
+2   51.96 ms 10.10.176.62
+
+OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+# Nmap done at Sat Oct  8 07:25:48 2022 -- 1 IP address (1 host up) scanned in 9.33 seconds

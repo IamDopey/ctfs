@@ -1,0 +1,16 @@
+Welcome to ABC!
+
+Abbadabba Broadcasting Compandy
+
+We're in the process of building a website! Can you believe this technology exists in bedrock?!?
+
+Barney is helping to setup the server, and he said this info was important...
+
+Hey, it's Barney. I only figured out nginx so far, what the h3ll is a database?!?
+Bamm Bamm tried to setup a sql database, but I don't see it running.
+Looks like it started something else, but I'm not sure how to turn it off...
+
+He said it was from the toilet and OVER 9000!
+
+Need to try and secure connections with certificates...
+

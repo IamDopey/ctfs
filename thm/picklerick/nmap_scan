@@ -1,0 +1,36 @@
+# Nmap 7.92 scan initiated Thu Sep 22 04:48:27 2022 as: nmap -Pn -A -oN nmap_scan 10.10.91.122
+Nmap scan report for 10.10.91.122
+Host is up (0.050s latency).
+Not shown: 998 closed tcp ports (reset)
+PORT   STATE SERVICE VERSION
+22/tcp open  ssh     OpenSSH 7.2p2 Ubuntu 4ubuntu2.6 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   2048 3e:7f:30:81:ca:13:cf:a1:fa:b6:e7:f2:43:b3:cc:fe (RSA)
+|   256 42:90:8f:bc:d3:99:c1:25:9f:60:7a:c2:84:1d:6d:f2 (ECDSA)
+|_  256 52:c4:25:a5:79:10:fe:5e:0a:c0:a4:75:b2:72:7d:b0 (ED25519)
+80/tcp open  http    Apache httpd 2.4.18 ((Ubuntu))
+|_http-title: Rick is sup4r cool
+|_http-server-header: Apache/2.4.18 (Ubuntu)
+No exact OS matches for host (If you know what OS is running on it, see https://nmap.org/submit/ ).
+TCP/IP fingerprint:
+OS:SCAN(V=7.92%E=4%D=9/22%OT=22%CT=1%CU=41419%PV=Y%DS=2%DC=T%G=Y%TM=632C217
+OS:2%P=x86_64-pc-linux-gnu)SEQ(SP=105%GCD=1%ISR=10E%TI=Z%CI=I%II=I%TS=8)OPS
+OS:(O1=M506ST11NW7%O2=M506ST11NW7%O3=M506NNT11NW7%O4=M506ST11NW7%O5=M506ST1
+OS:1NW7%O6=M506ST11)WIN(W1=68DF%W2=68DF%W3=68DF%W4=68DF%W5=68DF%W6=68DF)ECN
+OS:(R=Y%DF=Y%T=40%W=6903%O=M506NNSNW7%CC=Y%Q=)T1(R=Y%DF=Y%T=40%S=O%A=S+%F=A
+OS:S%RD=0%Q=)T2(R=N)T3(R=N)T4(R=Y%DF=Y%T=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)T5(R
+OS:=Y%DF=Y%T=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)T6(R=Y%DF=Y%T=40%W=0%S=A%A=Z%F
+OS:=R%O=%RD=0%Q=)T7(R=Y%DF=Y%T=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)U1(R=Y%DF=N%
+OS:T=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)IE(R=Y%DFI=N%T=40%CD
+OS:=S)
+
+Network Distance: 2 hops
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+TRACEROUTE (using port 8888/tcp)
+HOP RTT      ADDRESS
+1   51.04 ms 10.9.0.1
+2   51.11 ms 10.10.91.122
+
+OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+# Nmap done at Thu Sep 22 04:48:50 2022 -- 1 IP address (1 host up) scanned in 22.88 seconds

